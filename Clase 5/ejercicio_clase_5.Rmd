@@ -1,0 +1,236 @@
+---
+title: "ejercicio_clase_5"
+author: "Noelí D'Alessio"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(psych)
+library(expss)
+```
+
+1.	Importar la tabla de datos a R
+```{r}
+library(haven)
+Insomnio_2 <- read_sav("Insomnio_2.sav")
+View(Insomnio_2)
+```
+
+```{r}
+dataInsomnio <- Insomnio_2
+```
+
+2.	Incorporar etiquetas a todas las variables
+3.	Incorporar etiquetas a todos los valores de las variables, en el caso que tenga sentido realizar esta acción. 
+```{r}
+dataInsomnio <- as_factor(dataInsomnio)
+View(dataInsomnio)
+```
+
+
+4.Graficar las variables edad y sexo con el gráfico que crea conveniente.
+
+```{r}
+dataInsomnio %>% 
+  count(Edad)
+```
+
+
+```{r}
+ggplot(dataInsomnio, aes(Edad)) +
+  geom_bar(fill = "lightblue3")
+```
+
+```{r}
+dataInsomnio %>% 
+  count(Sexo)
+```
+```{r}
+ggplot(dataInsomnio, aes(Sexo, fill = Sexo)) +
+  geom_bar()
+```
+
+5.	Calcular estadísticos descriptivos convenientes para dichas variables
+
+```{r}
+describe(Insomnio_2$Edad)
+```
+
+```{r}
+describe(dataInsomnio, dataInsomnio$Edad, na.rm = TRUE)
+```
+
+6.	Hacer un gráfico de Boxplot por edad y sexo para cada una de las variables de cantidad de horas dormidas
+
+
+- ggplot() + boxplot() PRIMER NOCHE + EDAD
+
+```{r}
+ggplot(dataInsomnio) +
+    geom_boxplot(aes(Edad, PrimerNoche, fill = Edad)) +
+    ggtitle("Cantidad de horas de sueño en la primer noche") +
+    ylab("Horas de sueño")
+```
+
+- ggplot() + boxplot() SEGUNDA NOCHE + EDAD
+
+```{r}
+ggplot(dataInsomnio) +
+  geom_boxplot(aes(Edad, SegundaNoche, fill = Edad)) +
+  ggtitle("Cantidad de horas de sueño en la segunda noche") +
+  ylab("Horas de sueño")
+```
+
+
+```{r}
+ggplot(dataInsomnio, aes(Edad, TerceraNoche, fill = Edad)) +
+    geom_boxplot() +
+    ggtitle("Cantidad de horas de sueño en la tercer noche") +
+    ylab("Cantidad de horas de sueño")
+```
+
+- boxplot() PRIMER NOCHE + EDAD
+
+```{r}
+boxplot(dataInsomnio$PrimerNoche~Edad, data = dataInsomnio, na.action = NULL,
+        ylab = "Horas de sueño",
+        xlab = "Edad",
+        main = "Cantidad de horas de sueño en la primer noche",
+        ann = TRUE,
+        varwidth = TRUE,
+        outline = TRUE,
+        col = "thistle2")
+```
+
+
+```{r}
+boxplot(dataInsomnio$SegundaNoche~Edad, dataInsomnio, na.action = NULL,
+        ylab = "Horas de seño",
+        main = "Cantidad de horas de sueño en la segunda noche",
+        ann = TRUE,
+        varwidth = TRUE,
+        outline = TRUE,
+        col = "thistle2")
+```
+
+```{r}
+boxplot(dataInsomnio$TerceraNoche~Edad, dataInsomnio, na.action = NULL,
+        ylab = "Horas de seño",
+        main = "Cantidad de horas de sueño en la tercera noche",
+        ann = TRUE,
+        varwidth = TRUE,
+        outline = TRUE,
+        col = "thistle2")
+```
+
+
+7.	Hacer un gráfico de boxplot para los tres variables de cantidad de horas dormidas juntas (en un solo gráfico)
+
+- ggplot() + boxplot()
+
+Modifico tablas para que cada columna sea una variable. Por ejemplo, las columnas PrimeraNoche, SegundaNoche y TerceraNoche deberían ser valores de una varible "numeroNoche". Los valores de estas columnas irían a otra variable "horasSueno". Lo mismo ocurre con las variables Terapia1, Terapia2 y Terapia3. 
+
+```{r}
+dataInsomnio2 <- dataInsomnio %>% 
+    pivot_longer(c(PrimerNoche, SegundaNoche, TerceraNoche), 
+                 names_to = "numeroNoche", values_to = "horasSueno") %>% 
+    pivot_longer(c(Terapia1, Terapia2, Terapia3), 
+                 names_to = "terapia", values_to = "realizoTerapia") 
+
+#rename(numeroNoche = c("Primer Noche", "Segunda Noche", "Tercera Noche"))
+
+head(dataInsomnio2)
+```
+
+Ahora si, podemos realizar el boxplot con ggplot() + geom_boxplot()
+```{r}
+ggplot(dataInsomnio2, aes(x = numeroNoche, y = horasSueno, fill = numeroNoche)) +
+  geom_boxplot() +
+  ggtitle("Cantidad de horas de sueño en cada noche") +
+  ylab("Horas de sueño") +
+  xlab("Numero de noche")
+```
+
+
+- Boxplot()
+```{r}
+boxplot(dataInsomnio[,c("PrimerNoche", "SegundaNoche", "TerceraNoche")],
+        na.action = NULL,
+        ylab = "Horas de seño",
+        main = "Cantidad de horas de sueño en cada noche",
+        ann = TRUE,
+        varwidth = TRUE,
+        outline = TRUE,
+        col = "sienna1")
+```
+
+
+8.	Calcular los estadísticos descriptivos para las variables de cantidad de horas dormidas por tipo de terapia que tuvo el paciente
+
+```{r}
+describeBy(dataInsomnio$PrimerNoche, dataInsomnio$Terapia1)
+```
+
+
+9.	(difícil). Crear una variable que indique qué combinación de terapias ha tenido cada paciente. La variable debe ser así: 0= ninguna terapia, 1=sólo terapia contra insomnio, 2=sólo terapia contra ansiedad, etc. 
+
+```{r}
+dataInsomnio <- 
+  dataInsomnio %>% 
+  mutate(
+    combinacionTerapia = case_when(
+      Terapia1 == "No" & Terapia2 == "No" & Terapia3 == "No" ~ "ninguna",
+      Terapia1 == "Si" & Terapia2 == "No" & Terapia3 == "No" ~ "insomnio",
+      Terapia1 == "No" & Terapia2 == "Si" & Terapia3 == "No" ~ "ansiedad",
+      Terapia1 == "No" & Terapia2 == "No" & Terapia3 == "Si" ~ "fobia",
+      Terapia1 == "Si" & Terapia2 == "Si" & Terapia3 == "No" ~ "insomnio y ansiedad ",
+      Terapia1 == "Si" & Terapia2 == "No" & Terapia3 == "Si" ~ "insomnio y fobia",
+      Terapia1 == "No" & Terapia2 == "Si" & Terapia3 == "Si" ~ "ansiedad y fobia",
+      Terapia1 == "Si" & Terapia2 == "Si" & Terapia3 == "Si" ~ "insomnio ansiedad fobia",
+    )
+  )
+
+dataInsomnio <- dataInsomnio %>% select(-("combinacion"))
+```
+
+
+10.	Calcular las frecuencias y graficar la variable anterior.
+```{r}
+fre(dataInsomnio$combinacionTerapia)
+```
+
+```{r}
+dataInsomnio %>% 
+  count(combinacionTerapia) %>% 
+  mutate(prop = prop.table(n)*100) %>% 
+  mutate(prop = round(prop, 2))
+```
+
+
+
+11.	Hacer un gráfico boxplot para cada una de las variables de horas dormidas, cruzando con la variable creada en 9)
+
+```{r}
+ggplot(dataInsomnio, aes(combinacionTerapia, PrimerNoche, fill = combinacionTerapia)) +
+    geom_boxplot() +
+    ggtitle("Horas de sueño en la primer noche de acuerdo a tratamiento") +
+    ylab("Horas de sueño") +
+    xlab("Tipo de tratamiento realizado") +
+    coord_flip()
+  #theme(axis.text.x = element_text(angle = 45))
+```
+
+
+```{r}
+boxplot(dataInsomnio$PrimerNoche~combinacionTerapia, dataInsomnio, na.action = NULL,
+        main = "Horas de sueño en la primer noche de acuerdo a tratamiento",
+        ylab = "Horas de sueño",
+        xlab = "Tipo de tratamiento realizado",
+        ann = TRUE,
+        varwidth = TRUE,
+        outline = TRUE,
+        col = "thistle2")
+```
+
+

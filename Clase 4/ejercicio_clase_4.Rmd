@@ -1,0 +1,408 @@
+---
+title: "ejercicio_clase4"
+author: "Noelí D'Alessio"
+output: html_document
+---
+```{r}
+library(tidyverse)
+library(expss)
+library(psych)
+library(ggplot2)
+```
+
+```{r}
+library(readxl)
+cuestionario <- read_excel("~/R/R_Stats_UBA/cuestionario.xlsx")
+View(cuestionario)
+```
+
+### 1) Determinar la cantidad de hombres y mujeres que integran la muestra. Realizar un gráfico adecuado
+
+```{r}
+genero <- cuestionario$genero
+
+cuestionario$genero[cuestionario$genero == 1] <- "masculino"
+cuestionario$genero[cuestionario$genero == 2] <- "femenino"
+
+#genero <- factor(genero, labels = c("masculino", "femenino"))
+```
+
+- Tabla de frecuencias absolutas para la variable genero:
+```{r}
+addmargins(prop.table
+          (table(genero))*100) %>% 
+          round(2)
+```
+
+- Grafico con barplot:
+```{r}
+
+barplot((prop.table(table(genero))*100),
+          main = "Genero",
+          ylab = "Frecuencia",
+          xlab = 'Genero',
+          col = c("Darkgreen", "Violet"),
+          border = FALSE) %>% round(2)
+```
+
+
+- Grafico con ggplot: 
+
+```{r}
+cuestionario$genero[cuestionario$genero == 1] <- "masculino"
+cuestionario$genero[cuestionario$genero == 2] <- "femenino"
+
+ggplot(cuestionario, aes(genero, fill = genero)) +
+    geom_bar()
+```
+
+#### 2) Teniendo en cuenta la variable COLEGIO se pide:
+
+```{r}
+colegio <- cuestionario$colegio
+
+colegio[colegio == 1] <- "estatal"
+colegio[colegio == 2] <- "privado no religioso"
+colegio[colegio == 3] <- "privado religioso"
+
+#colegio <- factor(colegio, labels = c("estatal", "privado no religioso", "privado religioso"))
+```
+
+
+•	Qué porcentaje de individuos ha concurrido a un centro privado- no religioso?
+•	Qué cantidad de individuos ha concurrido a un centro estatal?
+```{r}
+(prop.table(table(colegio))*100) %>% 
+  round(2)
+```
+
+•	Realizar el gráfico adecuado que muestre los porcentajes de individuos que han concurrido a los diferentes centros educativos.
+
+- Barplot():
+
+```{r}
+barplot((prop.table(table(colegio))*100),
+          main = "Colegio",
+          ylab = "Frecuencia",
+          xlab = 'Tipo de colegio',
+          col = ("orangered1"),
+          border = FALSE) %>% 
+          round(2)
+```
+
+
+- Ggplot() + geom_bar(): 
+
+
+```{r}
+#Si quiero quitarle los NA:
+cuestionario <- cuestionario %>% 
+    filter(!is.na(colegio))
+
+cuestionario$colegio[cuestionario$colegio == 1] <- "estatal"
+cuestionario$colegio[cuestionario$colegio == 2] <- "privado no religioso"
+cuestionario$colegio[cuestionario$colegio == 3] <- "privado religioso"
+
+ggplot(cuestionario, aes(colegio, fill = colegio)) +
+    geom_bar()
+```
+
+
+
+#### 3)	Elaborar la distribución de frecuencias de la variable AMOR.
+
+```{r}
+amor <- cuestionario$amor
+
+cuestionario$amor[cuestionario$amor == 1] <- "de novio"
+cuestionario$amor[cuestionario$amor == 2] <- "ahora sin pareja"
+cuestionario$amor[cuestionario$amor == 3] <- "solo rel pasajeras"
+cuestionario$amor[cuestionario$amor == 4] <- "nunca relacion"
+
+#amor <- factor(amor, labels = c("de novio", "ahora sin pareja", "solo rel pasajeras", "nunca relacion"))
+```
+
+•	Qué porcentaje de los individuos nunca ha tenido una relación afectiva especial?
+•	Cuántos individuos han manifestado haber tenido hasta ahora relaciones afectivas pasajeras?
+
+```{r}
+addmargins((prop.table(table(amor)))*100) %>% 
+      round(2)
+```
+
+•	Realizar el gráfico adecuado para esta variable, indicando en él los porcentajes de cada categoría.
+
+- Barplot()
+```{r}
+barplot((prop.table(table(amor))*100),
+        main = "Amor",
+        ylab = "Porcentaje",
+        xlab = "tipo de relacion",
+        col =  "red",
+        border = FALSE)%>% 
+        round(2)
+```
+
+- ggplot() + geom_bar():
+
+```{r}
+cuestionario <- cuestionario %>% 
+                filter(!is.na(amor))
+
+
+cuestionario$amor[cuestionario$amor == 1] <- "de novio"
+cuestionario$amor[cuestionario$amor == 2] <- "ahora sin pareja"
+cuestionario$amor[cuestionario$amor == 3] <- "solo rel pasajeras"
+cuestionario$amor[cuestionario$amor == 4] <- "nunca relacion"
+
+ggplot(cuestionario, aes(amor, fill = amor))+
+  geom_bar()
+```
+
+
+
+
+
+#### 4)	Elaborar la distribución de frecuencias de la variable LIBROS
+
+•	¿Qué porcentaje de individuos ha leído a lo sumo 6 libros en los últimos 12 meses? 
+6.87%
+•	¿Cuántos individuos han leído al menos 10 libros en los últimos 12 meses?
+6.87%
+•	¿Cuál es la cantidad de libros leídos con mayor frecuencia por los jóvenes?
+3
+•	¿Cuál es la cantidad de libros máxima leída por el 50% de los jóvenes?
+5 libros
+
+- Con prop.table:
+
+```{r}
+round(prop.table(table(cuestionario$libros)),4)*100
+```
+
+- Con dplyr:
+```{r}
+pt_leidos <- cuestionario %>% 
+        filter(!is.na(libros)) %>% 
+        group_by(libros) %>% 
+        summarise(n = n()) %>% 
+        mutate(porcentaje = round(n/sum(n)*100,2))
+
+pt_leidos
+```
+
+
+•	Realizar un análisis descriptivo de la variable LIBROS, tanto para el total como para cada uno de los géneros. 
+PARTE 1. LIBROS
+
+- describe() de la libreria psych para análisis descriptivo:
+```{r}
+describe(cuestionario$libros)
+```
+
+- Tabla de contingencias cantidad de libros leidos en un año de acuerdo a genero. prop.table()
+```{r}
+#round(prop.table(table(cuestionario$libros, genero)),4)*100
+```
+
+- Histograma de la distribución de libros leídos hist()
+
+```{r}
+hist(cuestionario$libros, 
+     main = "Histograma de cantidad de libros leidos", 
+     xlab = "Libros",
+     freq = F,
+     border = FALSE, 
+     col = "blue4",
+     xlim = c(0,50),
+     las = 1, 
+     breaks = 20)
+
+#lines(density(cuestionario$libros, na.rm=T))
+```
+
+La variable libros tiene una media de 6 (desvio standard 7.48), sin embargo, al tener una asimetría positiva (skew = 1.93) deberíamos tomar en cuenta la mediana, la cual es de 5. Ademas tiene una distribución leptocúrtica (kurtosis = 4.06).
+
+
+
+PARTE 2. LIBROS + GENERO
+
+```{r}
+#describeBy(cuestionario$libros, genero)
+```
+
+La distribución de la variable libros en las personas con genero femenino tiene una media de 7.47 y un ds de 7.18. La mediana es de 5.Además presenta una asimetría positiva (skew = 2.07) y una forma leptocúrtica en la distribución (kurtosis 4.86).
+
+La distribución de la variable libros en las personas con genero femenino tiene una media de 7.5 y un ds de 7.16. La mediana es de 5.Además presenta una asimetría positiva (skew = 1.77) y una forma leptocúrtica en la distribución (kurtosis 3.06).
+
+- Grafico distribucion de la cant de libros de acuerdo a genero. ggplot() + hist()
+
+```{r}
+ggplot(cuestionario) +
+    geom_histogram(aes(libros), binwidth = 1) +
+    facet_wrap(~ genero)
+```
+
+```{r}
+ggplot(cuestionario, aes(libros, fill = genero)) +
+    geom_histogram(alpha = 0.5, position = "identity")
+```
+
+
+- Grafico distribucion de la cant de libros de acuerdo a genero. ggplot() + geom_freqpoly()
+```{r}
+ggplot(data = cuestionario, mapping = aes(x = libros, colour = genero)) +
+    geom_freqpoly(size = 1.5)
+```
+
+
+
+#### 5)	Realizar un análisis de frecuencias de la variable HORAS 
+
+```{r}
+describe(cuestionario$horas)
+```
+
+
+```{r}
+ggplot(cuestionario, aes(horas)) +
+    geom_histogram(fill = "darkblue")
+```
+
+La variable horas corresponde a la cantidad de horas libres a la semana para ocio/diversion. 
+El promedio de la variable horas es 21, con un desvio standard de 11.49. La mediana, es de 20.
+La distribución de la variable horas tiene una leve asimetría positiva (skew = 0.56), y una forma mesocurtica (kurtosis = -0.35). 
+
+
+
+#### 6)	Graficar y analizar la función de distribución de la variable INGRESOT
+
+•	La distribución es simétrica o asimétrica?
+•	Existen valores atípicos en la distribución?
+•	Qué puede decir respecto de la representatividad de la media?
+•	Cuál sería la medida de tendencia central adecuada para esta variable?
+
+```{r}
+describe(cuestionario$ingresot)
+```
+
+La distribución es asimétrica, tiene una asimetría negativa (skew = 0.57).
+No hay valores atípicos, por lo tanto la media es la medida indicada para la tendencia central de esta variable. 
+
+```{r}
+ggplot(cuestionario, aes(ingresot)) +
+    geom_histogram(binwidth = 1, fill = "palegreen3") +
+    scale_x_continuous(
+        name = "Ingresos totales\n de cada participante",
+        breaks = seq(0, 10, 1),
+        limits=c(0, 10)) +
+    scale_y_continuous(limits = c(0, 200)) +
+    ggtitle("Distribucion de ingresos totales")
+```
+
+
+
+#### 7)	Hacer un análisis descriptivo de la variable edad
+
+```{r}
+describe(cuestionario$edad)
+```
+
+```{r}
+ggplot(cuestionario, aes(edad)) +
+    geom_histogram(fill = "mediumpurple1")+
+     scale_x_continuous(
+        name = "Edad",
+        breaks = seq(0, 50, 2),
+        limits=c(0, 50)) +
+    ggtitle("Distribucion de la edad")
+```
+
+La media de la variable edad es 22 (ds 2.62). La mediana de la variable es 21. Tiene una asimetría levemente positiva (skew = 0.46). La concentración de la variable es entre mesocurtica y platicurtica (kurtosis = -0.35)
+
+
+#### 8)	Teniendo en cuenta a la variable TV del cuestionario
+
+•	¿Qué porcentaje de individuos ve menos de 18 horas de televisión?
+•	¿Cuántas horas ve como máximo televisión el 82% de la muestra?
+•	¿Cuáles son los valores de las tres medidas de tendencia central? Interpretarlas.
+
+```{r}
+pt_tv <- cuestionario %>% 
+        filter(!is.na(tv)) %>% 
+        group_by(tv) %>% 
+        summarise(n = n()) %>% 
+        mutate(
+          porcentaje = round(n/sum(n)*100,2),
+          porcentaje_cum = (cumsum(n) / sum(n)*100))
+
+pt_tv
+```
+
+El 	83.49% de las personas ve menos de 18 horas de TV por semana. 
+El  82% de las personas de la muestra ve como máximo 15 horas.
+
+```{r}
+describe(cuestionario$tv)
+```
+
+La media de horas de tv es 11, la mediana 10 y la moda 10. Las 3 medidas casi coinciden, lo cual habla de una distribucion bastante simetrica. 
+
+
+•	Convertir la variable TV que indica cantidad de horas/semana dedicadas a ver TV en una nueva variable DIAS que indica cantidad de días/semana dedicadas a ver TV. De esta nueva variable se pide calcular su media.
+
+```{r}
+tv_dia <- cuestionario$tv / 7
+```
+
+```{r}
+describe(tv_dia)
+```
+
+La media de hroas de television por dia que reporto la muestra es de 1.58, desvio standard de 1. La mediana es de 1.43 y el rango es entre 0.14 y 6.29. 
+
+•	Realizar el gráfico adecuado que permita observar la variabilidad en la variable TV para varones y para mujeres.
+
+```{r}
+#describeBy(tv_dia, genero)
+```
+
+
+
+```{r}
+ggplot(cuestionario, aes(tv, fill = genero)) +
+    geom_histogram(alpha = 0.5, position = "identity")
+```
+
+•	Crear una nueva variable que resulta de sumar a las puntuaciones obtenidas en la variable TV el valor 8. Hallar la media y la varianza de esta nueva variable. ¿Qué puede observar respecto a la media y varianza de la variable original TV?
+
+```{r}
+tv_plus8 <- cuestionario$tv + 8
+```
+
+```{r}
+describe(tv_plus8)
+```
+
+La media es ahora 19, el ds 7. Ambos valores aumentaron proporcionalmente. 
+
+
+#### 9)	En referencia a las variables INGRESO1, INGRESO 2 e INGRESO 3, se pide elaborar una nueva variable que llamaremos    TOTAL=INGRESO1+INGRESO2+INGRESO3. Hacer un análisis descriptivo de la misma.
+
+```{r}
+total_ingresos <- cuestionario$ingreso1 + cuestionario$ingreso2 + cuestionario$ingreso3
+```
+
+```{r}
+describe(total_ingresos)
+```
+
+```{r}
+ggplot(cuestionario, aes(total_ingresos)) +
+    geom_histogram(fill = "salmon2") +
+    scale_x_continuous(
+        name = "Ingresos totales en miles de pesetas",
+        breaks = seq(0, 400, 50))
+```
+
+La media es de 54, y tiene un desvio standard de 74. Lo cual indica que deberíamos considerar la mediana como medida de tendencia central, la cual es de 28. Presenta una marcada asimetría positiva (3.16) y una concentracion de los datos platicurtica (kurtosis 12.7).

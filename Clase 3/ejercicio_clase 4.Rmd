@@ -1,0 +1,65 @@
+---
+title: "ejercicio_clase_4"
+author: "Noelí D'Alessio"
+date: "5/28/2020"
+output: html_document
+---
+
+Packages: 
+```{r}
+library(tidyverse)
+library(expss)
+library(psych)
+library(ggplot2)
+```
+
+```{r}
+head(cuestionario)
+```
+
+
+## 1) Determinar la cantidad de hombres y mujeres que integran la muestra. Realizar un gráfico adecuado
+
+```{r}
+
+```
+
+
+- Tabla de frecuencia absoluta para la variable genero
+```{r}
+addmargins(prop.table
+          (table(genero))*100) %>% 
+          round(2)
+```
+
+- Grafico con barplot
+```{r}
+barplot((prop.table(table(genero))*100),
+          main = "Genero",
+          ylab = "Frecuencia",
+          xlab = 'Genero',
+          col = c("Darkgreen", "Violet"),
+          border = FALSE) %>% 
+          round(2)
+```
+
+-Ahora grafico con ggplot:
+```{r}
+genero <- cuestionario$genero
+
+genero = ifelse(genero == 1, "Masculino", "Femenino")
+
+ggplot(cuestionario, mapping = aes(genero, fill = genero)) +
+    geom_bar() 
+```
+
+```{r}
+```
+
+
+## 2)	Teniendo en cuenta la variable COLEGIO se pide:
+•	Qué porcentaje de individuos ha concurrido a un centro privado- no religioso?
+•	Qué cantidad de individuos ha concurrido a un centro estatal?
+•	Realizar el gráfico adecuado que muestre los porcentajes de individuos que han concurrido a los diferentes centros educativos.
+
+
