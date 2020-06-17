@@ -16,7 +16,7 @@ library(haven)
 Insomnio_2 <- read_sav("Insomnio_2.sav")
 View(Insomnio_2)
 ```
-
+Nueva variable donde guardar la base:
 ```{r}
 dataInsomnio <- Insomnio_2
 ```
@@ -191,7 +191,6 @@ dataInsomnio <-
     )
   )
 
-dataInsomnio <- dataInsomnio %>% select(-("combinacion"))
 ```
 
 
@@ -221,10 +220,43 @@ ggplot(dataInsomnio, aes(combinacionTerapia, PrimerNoche, fill = combinacionTera
   #theme(axis.text.x = element_text(angle = 45))
 ```
 
+```{r}
+ggplot(dataInsomnio, aes(combinacionTerapia, SegundaNoche, fill = combinacionTerapia)) +
+    geom_boxplot() +
+    ggtitle("Horas de sueño en la segunda noche de acuerdo a tratamiento") +
+    ylab("Horas de sueño") +
+    xlab("Tipo de tratamiento realizado") +
+    coord_flip()
+```
+
 
 ```{r}
-boxplot(dataInsomnio$PrimerNoche~combinacionTerapia, dataInsomnio, na.action = NULL,
+ggplot(dataInsomnio, aes(combinacionTerapia, TerceraNoche, fill = combinacionTerapia)) +
+    geom_boxplot() +
+    ggtitle("Horas de sueño en la tercera noche de acuerdo a tratamiento") +
+    ylab("Horas de sueño") +
+    xlab("Tipo de tratamiento realizado") +
+    coord_flip()
+  #theme(axis.text.x = element_text(angle = 45))
+```
+
+
+```{r}
+ploot1 <- boxplot(dataInsomnio$PrimerNoche~combinacionTerapia, dataInsomnio, na.action = NULL,
         main = "Horas de sueño en la primer noche de acuerdo a tratamiento",
+        ylab = "Horas de sueño",
+        xlab = "Tipo de tratamiento realizado",
+        ann = TRUE,
+        varwidth = TRUE,
+        outline = TRUE,
+        cex.axis=0.7,
+        col = "thistle2")
+```
+
+
+```{r}
+boxplot(dataInsomnio$SegundaNoche~combinacionTerapia, dataInsomnio, na.action = NULL,
+        main = "Horas de sueño en la segunda noche de acuerdo a tratamiento",
         ylab = "Horas de sueño",
         xlab = "Tipo de tratamiento realizado",
         ann = TRUE,
@@ -233,4 +265,14 @@ boxplot(dataInsomnio$PrimerNoche~combinacionTerapia, dataInsomnio, na.action = N
         col = "thistle2")
 ```
 
+```{r}
+boxplot(dataInsomnio$TerceraNoche~combinacionTerapia, dataInsomnio, na.action = NULL,
+        main = "Horas de sueño en la tercera noche de acuerdo a tratamiento",
+        ylab = "Horas de sueño",
+        xlab = "Tipo de tratamiento realizado",
+        ann = TRUE,
+        varwidth = TRUE,
+        outline = TRUE,
+        col = "thistle2")
+```
 
